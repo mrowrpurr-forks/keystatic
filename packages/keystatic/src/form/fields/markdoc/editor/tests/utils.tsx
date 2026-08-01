@@ -600,9 +600,14 @@ class RealEditorStateDescription implements EditorStateDescription {
 
 (expect as any).addEqualityTesters([
   function (this: any, a: any, b: any) {
+    const aIsEditorState = a instanceof RealEditorStateDescription;
+    const bIsEditorState = b instanceof RealEditorStateDescription;
+    // returning undefined (rather than false) defers to the default equality
+    // for values that aren't editor states
+    if (!aIsEditorState && !bIsEditorState) return undefined;
     return (
-      a instanceof RealEditorStateDescription &&
-      b instanceof RealEditorStateDescription &&
+      aIsEditorState &&
+      bIsEditorState &&
       this.equals(a.get().toJSON(), b.get().toJSON())
     );
   },
