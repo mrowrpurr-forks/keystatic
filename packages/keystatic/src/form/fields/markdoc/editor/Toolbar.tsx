@@ -23,6 +23,7 @@ import { Icon } from '@keystar/ui/icon';
 import { boldIcon } from '@keystar/ui/icon/icons/boldIcon';
 import { chevronDownIcon } from '@keystar/ui/icon/icons/chevronDownIcon';
 import { codeIcon } from '@keystar/ui/icon/icons/codeIcon';
+import { fileCodeIcon } from '@keystar/ui/icon/icons/fileCodeIcon';
 import { italicIcon } from '@keystar/ui/icon/icons/italicIcon';
 import { listIcon } from '@keystar/ui/icon/icons/listIcon';
 import { listOrderedIcon } from '@keystar/ui/icon/icons/listOrderedIcon';
@@ -168,11 +169,15 @@ function LinkButton(props: { link: MarkType }) {
   );
 }
 
-export const Toolbar = memo(function Toolbar(
-  props: HTMLAttributes<HTMLDivElement>
-) {
+export const Toolbar = memo(function Toolbar({
+  onShowRawSource,
+  ...props
+}: HTMLAttributes<HTMLDivElement> & {
+  onShowRawSource?: () => void;
+}) {
   const schema = useEditorSchema();
   const { nodes, marks } = schema;
+  const entryLayoutPane = useEntryLayoutSplitPaneContext();
   return (
     <ToolbarWrapper {...props}>
       <ToolbarScrollArea>
@@ -266,6 +271,23 @@ export const Toolbar = memo(function Toolbar(
         </EditorToolbar>
       </ToolbarScrollArea>
 
+      {onShowRawSource && (
+        <TooltipTrigger>
+          <ActionButton
+            aria-label={`Edit ${schema.format === 'mdx' ? 'MDX' : 'Markdoc'}`}
+            prominence="low"
+            marginEnd={entryLayoutPane === 'main' ? undefined : 'medium'}
+            onPress={onShowRawSource}
+          >
+            <Icon src={fileCodeIcon} />
+          </ActionButton>
+          <Tooltip>
+            <Text>
+              Edit {schema.format === 'mdx' ? 'MDX' : 'Markdoc'} source
+            </Text>
+          </Tooltip>
+        </TooltipTrigger>
+      )}
       <InsertBlockMenu />
     </ToolbarWrapper>
   );

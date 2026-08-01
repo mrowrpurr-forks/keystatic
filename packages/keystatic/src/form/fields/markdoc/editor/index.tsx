@@ -11,7 +11,13 @@ import {
 } from '@keystar/ui/style';
 
 import { Toolbar } from './Toolbar';
-import { prosemirrorStyles } from './utils';
+import { prosemirrorStyles, useEventCallback } from './utils';
+import { RawSourceEditor } from './raw-source-editor';
+import {
+  RawSourceFiles,
+  serializeEditorStateToRawSource,
+} from './raw-source';
+import { getEditorSchema } from './schema';
 import { EditorPopoverDecoration } from './popovers';
 import { ProseMirrorEditable, ProseMirrorEditor } from './editor-view';
 import { AutocompleteDecoration } from './autocomplete/decoration';
@@ -97,6 +103,34 @@ export const Editor = forwardRef(function Editor(
 
   const id = useId();
   const editorContext = useMemo(() => ({ id }), [id]);
+
+  const [rawSource, setRawSource] = useState<
+    null | ({ text: string } & RawSourceFiles)
+  >(null);
+  const showRawSource = useEventCallback(() => {
+    setRawSource(serializeEditorStateToRawSource(value));
+  });
+  // replacing the whole EditorState would break the yjs binding, so raw
+  // source editing is unavailable while collaborating
+  const isCollab = !!yCursorPluginKey.getState(_value);
+
+  if (rawSource !== null) {
+    return (
+      <RawSourceEditor
+        {...props}
+        schema={getEditorSchema(value.schema)}
+        initialText={rawSource.text}
+        files={rawSource.files}
+        otherFiles={rawSource.otherFiles}
+        onDone={newState => {
+          onChange(newState);
+          setRawSource(null);
+        }}
+        onCancel={() => setRawSource(null)}
+      />
+    );
+  }
+
   return (
     <EditorContextProvider value={editorContext}>
       <ProseMirrorEditor value={value} onChange={onChange} ref={ref}>
@@ -118,7 +152,11 @@ export const Editor = forwardRef(function Editor(
             },
           })}
         >
-          <Toolbar id={getToolbarId(id)} data-keystatic-editor="toolbar" />
+          <Toolbar
+            id={getToolbarId(id)}
+            data-keystatic-editor="toolbar"
+            onShowRawSource={isCollab ? undefined : showRawSource}
+          />
           <div>
             <ProseMirrorEditable
               {...props}

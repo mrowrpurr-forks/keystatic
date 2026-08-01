@@ -112,6 +112,10 @@ function getPrismTokenLength(token: Prism.Token | string): number {
   }
 }
 
+export function classNameForPrismToken(type: string) {
+  return styles.get(type);
+}
+
 const styles = new Map(
   [
     {
