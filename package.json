@@ -38,6 +38,7 @@
     "test-strict": "STRICT_MODE=1 pnpm run test",
     "test:coverage": "jest ---coverage",
     "test:unit": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "publish:fork": "node scripts/publish-fork.mjs",
     "validate": "pnpm run '/check:*/'",
     "version-packages": "changeset version && pnpm i --frozen-lockfile=false && pnpm run format \"**/CHANGELOG.md\""
   },
